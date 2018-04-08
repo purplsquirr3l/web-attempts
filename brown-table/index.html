@@ -2,18 +2,160 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
 <title>Brown Table</title>
-<style>
+<style type="text/css">
 	body {
-		background-color: linen;
+		background-color: #fff;
+		margin: 0;
+	}
+	
+	#header {
+		position: fixed;
+		margin-top: -20px;
+		width: 100%;
+		text-align: center;
+		font-family: serif;
+		font-weight: bold;
+		background-color: #fff;
+		z-index: 8;
+	}
+	
+	#content {
+		margin: 20px auto;
+		overflow: auto;
+		font-family: "ff-meta-web-pro", Helvetica, Arial, sans-serif;
+		padding-left: 10px;
+	}
+	
+	#footer {
+		position: fixed;
+		bottom: 0;
+		height: 20px;
+		width: 100%;
+		text-align: center;
+		font-family: serif;
+		font-weight: bold;
+		background-color: #fff;
+		z-index: 10;
+	}
+	
+	h1 {
+		margin-top: 2px;
+	}
+	
+	p {
+		color: #666;
+	}
+	
+	table {
+		border-radius: 10px;
+		-moz-border-radius: 10px;
+		-webkit-border-radius: 10px;
+		border: 1px solid #8d743e;
+		border-spacing: 0;
+		font-size: 90%;
+		overflow: hidden;
+	}	
+	
+	thead {
+		background-color: #8d743e;
+		color: #fff;
+		font-weight: bold;
+	}
+	
+	.odd {
+		background-color: #ddd;
+	}
+	
+	th, td {
+		text-align: left;
+		padding: 10px;
+	}
+	
+	.note {
+		font-style: italic;
+		font-size: 70%;
 	}
 </style>
 
-<script type="text/javascript">
-</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
 </head>
 
 <body>
+<div id="header">HEADER</div>
+<div id="content">
+	<h1>Page Title</h1>
+	<p>Search the table: <input type="text" id="search" size="50"></input></p>
+	<p class="note">Note: Some information has been removed.</p>
+</div>
+<div id="footer">FOOTER</div>
+<script type="text/javascript">
+	var tabulate = function (data) {
+		var table = d3.select('#content').append('table');
+		var thead = table.append('thead');
+		var tbody = table.append('tbody');
 
+		thead.append('tr')
+			.selectAll('th')
+			.data(data.columns)
+			.enter()
+			.append('th')
+			.text(function (d) { return d; });
+
+		var rows = tbody.selectAll('tr')
+			.data(data)
+			.enter()
+			.append('tr')
+			.attr('class', function(d, i) { 
+				if (i % 2 === 0){
+					return "even";
+				}else{
+					return "odd";
+				}
+			});
+
+		var cells = rows.selectAll('td')
+			.data(function(row) {
+				return data.columns.map(function (column) {
+					return { column: column, value: row[column] };
+				});
+			})
+			.enter()
+			.append('td')
+			.text(function (d) { return d.value; });
+
+		return table;
+	}
+
+	d3.csv("data.csv", function(data) {
+		tabulate(data);
+	});
+	
+	function filterTable(value){
+		var rows = document.getElementsByTagName('tr');
+		
+		for (var i = 1; i < rows.length; i++){
+			var found = 0;
+			var tds = rows[i].getElementsByTagName('td');
+			for (var j = 0; j < tds.length && found == 0; j++){
+				if (tds[j].innerHTML.toLowerCase().indexOf(value) > -1){
+					found = 1;
+				}
+			}
+			
+			if (found == 1){
+				rows[i].style.display = '';
+			}else{
+				rows[i].style.display = 'none';
+			}
+		}
+	}
+	
+	d3.select("#search").on("keyup", function(d) {
+		filterTable(this.value.trim().toLowerCase());
+	});
+</script>
 </body>
 </html>
