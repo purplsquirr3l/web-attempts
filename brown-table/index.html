@@ -54,7 +54,7 @@
 		border-radius: 10px;
 		-moz-border-radius: 10px;
 		-webkit-border-radius: 10px;
-		border: 1px solid #8d743e;
+		border: 2px solid #8d743e;
 		border-spacing: 0;
 		font-size: 90%;
 		overflow: hidden;
@@ -67,17 +67,40 @@
 	}
 	
 	.odd {
-		background-color: #ddd;
+		/*background-color: #ddd;*/
 	}
 	
-	th, td {
+	td, th {
 		text-align: left;
 		padding: 10px;
+		border-top: 1px dotted #8d743e;
+		border-right: 1px dotted #8d743e;
+	}
+	
+	td:last-child, th:last-child {
+		border-right: none;
+	}
+	
+	tr:first-child td {
+		border-top: none;
+	}
+	
+	td:nth-child(2) {
+		width: 80px;
 	}
 	
 	.note {
 		font-style: italic;
 		font-size: 70%;
+	}
+	
+	#banner {
+		line-height: 100px;
+	}
+	
+	#banner img {
+		float: left;
+		vertical-align: middle;
 	}
 </style>
 
@@ -87,7 +110,10 @@
 <body>
 <div id="header">HEADER</div>
 <div id="content">
-	<h1>Page Title</h1>
+	<div id="banner">
+		<img src="https://png.icons8.com/metro/1600/home.png" width="100" height="100" />
+		<h1>Page Title</h1>
+	</div>
 	<p>Search the table: <input type="text" id="search" size="50"></input></p>
 	<p class="note">Note: Some information has been removed.</p>
 </div>
@@ -131,7 +157,10 @@
 	}
 
 	d3.csv("data.csv", function(data) {
-		tabulate(data);
+		tabulate(data.sort(function(a, b){
+				return a[data.columns[1]] > b[data.columns[1]];
+			})
+		);
 	});
 	
 	function filterTable(value){
